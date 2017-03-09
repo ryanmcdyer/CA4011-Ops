@@ -5,10 +5,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.PrintWriter;
-import java.time.Instant;
+import java.time.Instant;*/
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Collections;*/
+import java.util.Collections;
 
 public class Part1 {
   /*
@@ -32,8 +32,10 @@ replications to be applied should be an input parameter for the simulation syste
 
   public static void main(String[] args) {
 
-    double arrivalRate, serviceRate;
-    int numServers;
+    double arrivalRate = 0;
+    double serviceRate = 0;
+    int numServers = 0;
+    int lengthOfSimulation = 0;
 
     Console c = System.console();
     if (c == null) {
@@ -41,16 +43,48 @@ replications to be applied should be an input parameter for the simulation syste
       System.exit(1);
     }
 
+    int[] arrivalTimes;
+
     try {
       arrivalRate = Double.parseDouble(c.readLine("Arrival Rate (x per hour): ")); //lambda
       serviceRate = Double.parseDouble(c.readLine("Service Rate (x per hour): ")); //mu
       numServers = Integer.parseInt(c.readLine("Number of servers: "));
-      System.out.println("Traffic Instensity = " + (arrivalRate/(numServers * serviceRate))); //rho
+      lengthOfSimulation = Integer.parseInt(c.readLine("Length of Simulation (in minutes): "));
+
+      System.out.println("Traffic Intensity = " + (arrivalRate/(numServers * serviceRate))); //rho
 
     } catch(Exception e) {
       ;
     }
 
+    int numPersons = (int) Math.round((lengthOfSimulation/60.0) * arrivalRate);
+    System.out.println(numPersons);
 
+
+  }
+
+  class Person {
+    private int arrivalTime;
+    private int departureTime;
+
+    public Person(int a0) {
+      arrivalTime = a0;
+    }
+
+  	public int getArrivalTime() {
+  		return arrivalTime;
+  	}
+
+  	/*public void setArrivalTime(int arrivalTime) {
+  		this.arrivalTime = arrivalTime;
+  	}*/
+
+  	public int getDepartureTime() {
+  		return departureTime;
+  	}
+
+  	public void setDepartureTime(int departureTime) {
+  		this.departureTime = departureTime;
+  	}
   }
 }
