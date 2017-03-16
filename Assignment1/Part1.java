@@ -97,6 +97,7 @@ results from your software model. Key measures of performance include
 
 
 
+
 */
 
 
@@ -104,14 +105,15 @@ results from your software model. Key measures of performance include
     int time = 0;
     Client tmpCli;
     Server tmpSer;
-    Server[] busySer;
+    Server[] busySer = new Server[0];
+
+    while(time < lengthOfSimulation || busySer.length > 0) {
 
 //- Check if there's a new arrival
 //  -> if so, add to queue
-    while(time < lengthOfSimulation) {
       if(isNewArrival(time)) {
         tmpCli = getNewArrival(time);
-        q.add(tmpCli);
+        q.addLast(tmpCli);
       }
 
 //- Check if a server is busy
@@ -122,14 +124,32 @@ results from your software model. Key measures of performance include
         tmpCli = s.getCurrentClient();
         if(tmpCli.getDepartureTime() == time) {
           s.releaseClient();
+          //busySer = getBusyServers();
         }
       }
 
+//- Check if the queue is populated
+//  -> if so, check if a server is free
+//    -> if so, make server busy, remove "oldest" client from queue, set client departureTime
 
+      if(q.size() > 0) {
+        busySer = getBusyServers();
+        if(busySer.length > 0) {
+          int i = 0;
+          while(i < busySer.length && q.size() > 0) {
+            tmpCli = q.remove(0);//remove "head" of queue
+            tmpSer = busySer[i];
+            tmpSer.giveClient(tmpCli, time);
+          }
+        }
+      }
+
+//->Increment counters
 
 
       time++;
     }
+    System.out.println("Simulation ended " + (time-lengthOfSimulation) + " minutes over due at " + time);
   }
 
   static boolean isNewArrival(int time) {
@@ -206,6 +226,7 @@ results from your software model. Key measures of performance include
     int i = 0;
 
     while(i < numServers) {
+      //TODO
       allServers.add(new Server());
     }
   }
