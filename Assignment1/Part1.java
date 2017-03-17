@@ -146,6 +146,14 @@ results from your software model. Key measures of performance include
 
 //->Increment counters
 
+      for(Client c : q) {
+        c.incCounter();
+      }
+
+      for(Server s : allServers) {
+        s.incCounter();
+      }
+
 
       time++;
     }
@@ -247,6 +255,7 @@ class Client {
   private int arrivalTime;
   private int startOfServiceTime;
   private int departureTime;
+  private int timeInQueue;
 
   private boolean isBusy;
 
@@ -254,6 +263,7 @@ class Client {
     arrivalTime = a0;
     isBusy = false;
     departureTime = -1;
+    timeInQueue = 0;
   }
 
   public Client() {
@@ -297,6 +307,10 @@ class Client {
   public void setBusy(boolean b) {
     isBusy = b;
   }
+
+  public void incCounter() {
+    timeInQueue++;
+  }
 }
 
 class Server {
@@ -306,6 +320,9 @@ class Server {
   private int serviceTime;//how long it takes this server to serve one client
   private Client currentClient;
 
+  private int timeWasted; //Time spent waiting on a client
+  private int timeBusy; //Time spent serving a client
+
   public Server(int breakLength0, int[] breakTimes0, int serviceTime0) {
     breakLength = breakLength0;
     breakTimes   = new ArrayList<>();
@@ -314,6 +331,8 @@ class Server {
     }
     serviceTime = serviceTime0;
     isBusy = false;
+    timeBusy = 0;
+    timeWasted = 0;
   }
 
   public Server() {
@@ -345,4 +364,12 @@ class Server {
     isBusy = b;
   }
 
+
+  public void incCounter() {
+    if(this.isBusy()) {
+      timeBusy++;
+    } else {
+      timeWasted++;
+    }
+  }
 }
