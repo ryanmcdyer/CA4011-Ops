@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.Random;
 import java.security.SecureRandom;
 
-public class Part1 {
+public class QueueSim {
   /*
 In queueing systems, there are various measures of performance and these are essential
 results from your software model. Key measures of performance include
@@ -38,10 +38,16 @@ results from your software model. Key measures of performance include
     double arrivalRate = 0;
     double serviceRate = 0;
     double avgTimeBetweenArrivals = 60;
-    int serviceTime = -1;
+
+    int serviceLength = -1;
+    int specialServiceLength = -2;
+    int freqOfSpecialClients = 999;
     int numServers = 0;
     int lengthOfSimulation = 0;
     int numSimulations = 1;
+
+    int breakTimes[];
+    int breakLength = 0;
 
     Console c = System.console();
     if (c == null) {
@@ -55,7 +61,11 @@ results from your software model. Key measures of performance include
       arrivalRate = Double.parseDouble(c.readLine("Arrival Rate (x per hour): ")); //lambda
       avgTimeBetweenArrivals = 60/arrivalRate;
       serviceRate = Double.parseDouble(c.readLine("Service Rate (x per hour): ")); //mu
-      serviceTime = (int) Math.round(60/serviceRate);
+      serviceLength = (int) Math.round(60/serviceRate);
+      specialServiceLength = 2 * serviceLength;
+
+      freqOfSpecialClients = Integer.parseInt(c.readLine("Enter n, where every nth client is a Special Client: "));
+
       numServers = Integer.parseInt(c.readLine("Number of servers: "));
       lengthOfSimulation = Integer.parseInt(c.readLine("Length of Simulation (in minutes): "));
       //numSimulations = Integer.parseInt(c.readLine("Number of Simulation: "));
@@ -69,12 +79,12 @@ results from your software model. Key measures of performance include
 
 
 
-
     int i = 0;
     while(i < numSimulations) {
-      populateClients(avgTimeBetweenArrivals, arrivalRate, lengthOfSimulation);
+      populateClients(avgTimeBetweenArrivals, arrivalRate, lengthOfSimulation,
+          serviceLength, specialServiceLength, freqOfSpecialClients);
 
-      populateServers(numServers, serviceRate);
+      populateServers(numServers);
 
       runSimulation(lengthOfSimulation);
       i++;
@@ -196,16 +206,15 @@ results from your software model. Key measures of performance include
 
   static double getArrivalTimeExp(double arrivalRate, Random rand) {
     //http://stackoverflow.com/questions/2106503/pseudorandom-number-generator-exponential-distribution
-    /*double d = Math.log(1-rand.nextDouble())/(-arrivalRate);
-    System.out.println("d" + d);
-    return d;*/
     return Math.log(1-rand.nextDouble())/(-arrivalRate);
   }
 
-  static void populateClients(double avgTimeBetweenArrivals, double arrivalRate, int lengthOfSimulation) {
+  static void populateClients(double avgTimeBetweenArrivals, double arrivalRate,
+      int lengthOfSimulation, int serviceLength, int specialServiceLength,
+      int freqOfSpecialClients) {
     allClients = new ArrayList<>();
     int i = 0;
-    int t = Math.round((float) (30.0/arrivalRate)); //set it to 5 mins
+    int t = Math.round((float) (30.0/arrivalRate));
     int arrivalTime = t;
     SecureRandom sr = new SecureRandom();
     while(i < lengthOfSimulation) {
@@ -214,27 +223,36 @@ results from your software model. Key measures of performance include
           * getArrivalTimeExp(arrivalRate, sr)
           * ( sr.nextBoolean() ? 1 : -1 )));
 
-      allClients.add(new Client(arrivalTime));
+      if(isSpecialClient(freqOfSpecialClients)) {
+        allClients.add(new Client(arrivalTime, specialServiceLength));
+      } else {
+        allClients.add(new Client(arrivalTime, serviceLength));
+      }
       i++;
     }
   }
 
-  static void populateServers(int numServers, double serviceRate, int[] breakTimes) {
+  static boolean isSpecialClient(int x) {
+    //Roll a die of x sides and return true if result = x
+    return ((int) ((Math.random() * x) + 1)) == x;
+  }
+
+  static void populateServers(int numServers, int[] breakTimes) {
     allServers = new ArrayList<>();
     int i = 0;
 
     while(i < numServers) {
+      //TODO: Add breaktimes
       allServers.add(null);
       i++;
     }
   }
 
-  static void populateServers(int numServers, double serviceRate) {
+  static void populateServers(int numServers) {
     allServers = new ArrayList<>();
     int i = 0;
 
     while(i < numServers) {
-      //TODO
       allServers.add(new Server());
     }
   }
@@ -257,10 +275,13 @@ class Client {
   private int departureTime;
   private int timeInQueue;
 
+  private int serviceLength;
+
   private boolean isBusy;
 
-  public Client(int a0) {
+  public Client(int a0, int s0) {
     arrivalTime = a0;
+    serviceLength = s0;
     isBusy = false;
     departureTime = -1;
     timeInQueue = 0;
@@ -285,6 +306,15 @@ class Client {
 	public void setDepartureTime(int departureTime) {
 		this.departureTime = departureTime;
 	}
+
+	public int getServiceLength() {
+		return serviceLength;
+	}
+
+	public void setServiceLength(int serviceLength) {
+		this.serviceLength = serviceLength;
+	}
+
 
 	public int getStartOfServiceTime() {
 		return startOfServiceTime;
@@ -323,13 +353,12 @@ class Server {
   private int timeWasted; //Time spent waiting on a client
   private int timeBusy; //Time spent serving a client
 
-  public Server(int breakLength0, int[] breakTimes0, int serviceTime0) {
+  public Server(int breakLength0, int[] breakTimes0) {
     breakLength = breakLength0;
     breakTimes   = new ArrayList<>();
     for(int bt : breakTimes0) {
       breakTimes.add(bt);
     }
-    serviceTime = serviceTime0;
     isBusy = false;
     timeBusy = 0;
     timeWasted = 0;
@@ -341,7 +370,7 @@ class Server {
 
   public void giveClient(Client c, int time) {
     currentClient = c;
-    currentClient.setDepartureTime(time + serviceTime);
+    currentClient.setDepartureTime(time + currentClient.getServiceLength());
     currentClient.setStartOfServiceTime(time);
     currentClient.setBusy(true);
   }
