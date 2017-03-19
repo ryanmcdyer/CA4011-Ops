@@ -7,8 +7,10 @@ import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.time.Instant;*/
 import java.util.List;
-import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Random;
@@ -33,6 +35,18 @@ results from your software model. Key measures of performance include
   static ArrayList<Client> allClients;
   static ArrayList<Server> allServers;
 
+  static LinkedList<Integer> avgWait;
+  static LinkedList<Integer> avgTimeInSystem;
+
+  static LinkedList<Integer> maxWait;
+  static LinkedList<Integer> maxTimeInSystem;
+
+  static LinkedList<Integer> serverTimeBusy;
+  static LinkedList<Integer> serverTimeIdle;
+
+  static LinkedList<Double> avgSystemSize;
+  static LinkedList<Double> avgQueueSize;
+
   public static void main(String[] args) {
 
     double arrivalRate = 0;
@@ -46,7 +60,10 @@ results from your software model. Key measures of performance include
     int lengthOfSimulation = 0;
     int numSimulations = 1;
 
-    int breakTimes[];
+    int numBreaks = 0;
+    boolean isThereABreak = false;
+
+    HashMap<Integer, ArrayList<Integer>> breakTimes = new HashMap<>();
     int breakLength = 0;
 
     Console c = System.console();
@@ -58,18 +75,27 @@ results from your software model. Key measures of performance include
     int[] arrivalTimes;
 
     try {
+      lengthOfSimulation = Integer.parseInt(c.readLine("Length of Simulation (in minutes): "));
+      System.out.println("This simulation will run for " + lengthOfSimulation + " minutes.");
+      System.out.println("All times will be relative to the simulation beginning at time 0.");
+
+      System.out.println("Please enter the following paramaters.");
+
       arrivalRate = Double.parseDouble(c.readLine("Arrival Rate (x per hour): ")); //lambda
       avgTimeBetweenArrivals = 60/arrivalRate;
       serviceRate = Double.parseDouble(c.readLine("Service Rate (x per hour): ")); //mu
       serviceLength = (int) Math.round(60/serviceRate);
       specialServiceLength = 2 * serviceLength;
 
-      freqOfSpecialClients = Integer.parseInt(c.readLine("Enter n, where every nth client is a Special Client: "));
-
+      freqOfSpecialClients = Integer.parseInt(c.readLine("Enter n, where every nth client is a Special Client (-1 for no special clients): "));
+      isThereABreak = Boolean.parseBoolean(c.readLine("Will the servers take a break? (\"true\" or \"false\"): "));
+      if(isThereABreak) {
+        numBreaks = Integer.parseInt(c.readLine("Breaks taken per server: "));
+        breakLength = Integer.parseInt(c.readLine("Break length (in minutes): "));
+      }
       numServers = Integer.parseInt(c.readLine("Number of servers: "));
-      lengthOfSimulation = Integer.parseInt(c.readLine("Length of Simulation (in minutes): "));
       //numSimulations = Integer.parseInt(c.readLine("Number of Simulation: "));
-      System.out.println("Traffic Intensity = " + (arrivalRate/(numServers * serviceRate))); //rho
+      //System.out.println("Traffic Intensity = " + (arrivalRate/(numServers * serviceRate))); //rho
 
     } catch(Exception e) {
       ;
@@ -78,13 +104,29 @@ results from your software model. Key measures of performance include
     int numClients = (int) Math.round((lengthOfSimulation/60.0) * arrivalRate);//round double to long, cast to int
 
 
+    if(isThereABreak) {
+      ArrayList<Integer> tmp;
+      System.out.println("Eg: If your sim starts at 0900 and the server takes a break at 1030, enter \"90\"");
+      for(int i = 0; i < numServers; i++) {
+        tmp = new ArrayList<>();
+        for(int j = 0; j < numBreaks; j++) {
+          tmp.add(Integer.parseInt(c.readLine("Breaktime " + (j+1) + " for Server " + (i+1) + ": ")));
+        }
+        breakTimes.put(i, tmp);
+      }
+
+    }
 
     int i = 0;
     while(i < numSimulations) {
       populateClients(avgTimeBetweenArrivals, arrivalRate, lengthOfSimulation,
           serviceLength, specialServiceLength, freqOfSpecialClients);
 
-      populateServers(numServers);
+      if(!isThereABreak) {
+        populateServers(numServers);
+      } else {
+        populateServers(numServers, breakLength, breakTimes);
+      }
 
       runSimulation(lengthOfSimulation);
       i++;
@@ -93,23 +135,8 @@ results from your software model. Key measures of performance include
 
   static void runSimulation(int lengthOfSimulation) {
 
-/*
-- Check if there's a new arrival
-  -> if so, add to queue
-
-- Check if a server is busy
-  -> if so, check if time == client's departureTime
-    -> if so, free up the server, set client to served
-
-- Check if the queue is populated
-  -> if so, check if a server is free
-    -> if so, make server busy, remove "oldest" client from queue, set client departureTime
-
-
-
-
-*/
-
+    String nameOfFile = String.parseString(System.currentTimeMillis());
+    PrintWriter pw = new PrintWriter(new File(nameOfFile + ".csv"));
 
     LinkedList<Client> q = new LinkedList<>();
     int time = 0;
@@ -155,7 +182,6 @@ results from your software model. Key measures of performance include
       }
 
 //->Increment counters
-
       for(Client c : q) {
         c.incCounter();
       }
@@ -168,6 +194,8 @@ results from your software model. Key measures of performance include
       time++;
     }
     System.out.println("Simulation ended " + (time-lengthOfSimulation) + " minutes over due at " + time);
+
+    //Calculate averages and add to the Lists
   }
 
   static boolean isNewArrival(int time) {
@@ -233,17 +261,17 @@ results from your software model. Key measures of performance include
   }
 
   static boolean isSpecialClient(int x) {
+    if(x < 0)
+      return false;
     //Roll a die of x sides and return true if result = x
     return ((int) ((Math.random() * x) + 1)) == x;
   }
 
-  static void populateServers(int numServers, int[] breakTimes) {
+  static void populateServers(int numServers, int breakLength, HashMap<Integer, ArrayList<Integer>> breakTimes) {
     allServers = new ArrayList<>();
     int i = 0;
-
     while(i < numServers) {
-      //TODO: Add breaktimes
-      allServers.add(null);
+      allServers.add(new Server(breakLength, breakTimes.get(i)));
       i++;
     }
   }
@@ -258,7 +286,7 @@ results from your software model. Key measures of performance include
   }
 
   static Server[] getBusyServers() {
-    LinkedList<Server> list = new LinkedList<>();
+    ArrayList<Server> list = new ArrayList<>();
     for(Server s : allServers) {
       if(s.isBusy()) {
         list.add(s);
@@ -353,7 +381,7 @@ class Server {
   private int timeWasted; //Time spent waiting on a client
   private int timeBusy; //Time spent serving a client
 
-  public Server(int breakLength0, int[] breakTimes0) {
+  public Server(int breakLength0, ArrayList<Integer> breakTimes0) {
     breakLength = breakLength0;
     breakTimes   = new ArrayList<>();
     for(int bt : breakTimes0) {
