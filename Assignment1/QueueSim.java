@@ -1,3 +1,5 @@
+//13431038 CA4011 2016/17 Assignment 1
+
 import java.io.Console;
 import java.awt.print.Printable;
 import java.io.BufferedReader;
@@ -21,21 +23,6 @@ import java.util.concurrent.TimeUnit;
 import java.time.Instant;
 
 public class QueueSim {
-  /*
-In queueing systems, there are various measures of performance and these are essential
-results from your software model. Key measures of performance include
-  Average time a customer spends in the system (queueing & being served)
-  Average time a customer spends waiting for service (that is, in the queue)
-  Maximum time a customer spends in the system (queueing & being served)
-  Maximum time a customer spends waiting for service (that is, in the queue)
-  Proportion of time each server is idle
-  Average number of customers in the system (queueing & being served)
-  Average number of customers in the queue
-
-* The number of replications to be applied should be an input parameter for the simulation system.
-
-*/
-
   static ArrayList<Client> allClients;
   static ArrayList<Server> allServers;
 
@@ -56,6 +43,7 @@ results from your software model. Key measures of performance include
 
   public static void main(String[] args) {
 
+
     avgWaits = new LinkedList<>();
     avgTimesInSystem = new LinkedList<>();
     maxWaits = new LinkedList<>();
@@ -68,6 +56,7 @@ results from your software model. Key measures of performance include
 
     double arrivalRate = 0;
     double serviceRate = 0;
+    double specialServiceRate = 0;
     double avgTimeBetweenArrivals = 60;
     boolean shouldUsePoisson = false;
 
@@ -112,17 +101,20 @@ results from your software model. Key measures of performance include
       serviceRate = Double.parseDouble(c.readLine("Service Rate (x per hour): ")); //mu
       serviceLength = (int) Math.round(60/serviceRate);
       System.out.println("Therefore average service takes " + serviceLength + " mins");
-      specialServiceLength = 2 * serviceLength;
 
       freqOfSpecialClients = Integer.parseInt(c.readLine("Enter n, where every nth client is a Special Client (-1 for no special clients): "));
       if(freqOfSpecialClients >= 1) {
-          keepSpecialUntilEnd = Boolean.parseBoolean(c.readLine("Should all special customers arrive last? (\"true\" or \"false\"): "));
+        specialServiceRate = Double.parseDouble(c.readLine("Special Service Rate (x per hour): ")); //specialMu
+        specialServiceLength = (int) Math.round(60/specialServiceRate);
+        keepSpecialUntilEnd = Boolean.parseBoolean(c.readLine("Should all special customers arrive last? (\"true\" or \"false\"): "));
       }
+
       isThereABreak = Boolean.parseBoolean(c.readLine("Will the servers take a break? (\"true\" or \"false\"): "));
       if(isThereABreak) {
         numBreaks = Integer.parseInt(c.readLine("Breaks taken per server: "));
         breakLength = Integer.parseInt(c.readLine("Break length (in minutes): "));
       }
+
       numServers = Integer.parseInt(c.readLine("Number of servers: "));
       numSimulations = Integer.parseInt(c.readLine("Number of simulations: "));
 
@@ -146,7 +138,6 @@ results from your software model. Key measures of performance include
 
     }
     numClients = (int) Math.round((lengthOfSimulation/60.0) * arrivalRate)-1;//round double to long, cast to int
-    //System.out.println("There will be " + numClients + " clients");
 
     int i = 0;
 
@@ -167,11 +158,12 @@ results from your software model. Key measures of performance include
       }
 
       if(freqOfSpecialClients > 0) {
-        pw.write("\nFrequency of special clients " + freqOfSpecialClients);
+        pw.write("\nFrequency of special clients: " + freqOfSpecialClients);
+        pw.write("\nSpecial service rate: " + specialServiceRate);
         if(keepSpecialUntilEnd) {
           pw.write("\nSpecial Clients will arrive last.");
         } else {
-          pw.write("\nSpecial Clients will arrive regularly.");
+          pw.write("\nSpecial Clients will arrive regularly throughout.");
         }
       } else {
         pw.write("\nThere are no special clients.");
@@ -187,18 +179,15 @@ results from your software model. Key measures of performance include
 
       while(i < numSimulations) {
         populateClients(avgTimeBetweenArrivals, arrivalRate, numClients,
-            serviceLength, specialServiceLength, freqOfSpecialClients,
+            serviceLength, specialServiceLength,
+            freqOfSpecialClients, keepSpecialUntilEnd,
             shouldUsePoisson, lengthOfSimulation);
-
-//        System.out.println("Clients populated");
 
         if(!isThereABreak) {
           populateServers(numServers);
         } else {
           populateServers(numServers, breakLength, breakTimes);
         }
-//        System.out.println("Servers populated");
-
 
         runSimulation(lengthOfSimulation, pw);
         i++;
@@ -207,13 +196,10 @@ results from your software model. Key measures of performance include
       if(isThereABreak) {
         i = 0;
         ArrayList<Integer> scheduledBreakTimes;
-        ArrayList<Integer> actualBreakTimes;
         for(i = 0; i < allServers.size(); i++) {
           scheduledBreakTimes = breakTimes.get(i);
-          actualBreakTimes = allServers.get(i).getActualBreakTimes();
           for(int j = 0; j < numBreaks; j++) {
-            pw.write("\nServer " + i + " was scheduled to break at " + scheduledBreakTimes.get(j) + " but broke at " + actualBreakTimes.get(j));
-
+            pw.write("\nServer " + i + " was scheduled to break at " + scheduledBreakTimes.get(j));
           }
         }
       }
@@ -226,7 +212,7 @@ results from your software model. Key measures of performance include
       pw.flush();
       pw.close();
     } catch(Exception e) {
-      ;
+      e.printStackTrace();
     }
   }
 
@@ -236,11 +222,6 @@ static LinkedList<Double> avgTimesInSystem;*/
 
     double maxD = -1.0;
     int maxI = -1;
-
-    for(Client c : allClients) {
-      System.out.println(c.getArrivalTime());
-      System.out.println(c.getDepartureTime());
-    }
 
     pw.write("\nAverage waiting times (Client): \n");
     for(Double d : avgWaits) {
@@ -332,8 +313,6 @@ static LinkedList<Double> avgQueueSize;*/
 
   static void runSimulation(int lengthOfSimulation, PrintWriter pw) {
 
-      //doublecheck : //TODO: Ensure Server is removed from available servers when it finishes with a client if it's due a break
-
     LinkedList<Client> q = new LinkedList<>();
     int totalQueueSize = 0;
     int maxQueueSize = -1;
@@ -391,11 +370,6 @@ static LinkedList<Double> avgQueueSize;*/
         break;
       }
     }
-
-//  Maybe, not sure about below comment
-//- The queue is empty. Check if any servers are due their break
-//  -> if so, send them on break
-
 
 //->Increment counters
       for(Client c : q) {
@@ -493,20 +467,6 @@ static LinkedList<Double> avgQueueSize;*/
     return null;
   }
 
-  static int getPoissonDist(double lambda) {
-    //http://stackoverflow.com/questions/1241555/algorithm-to-generate-poisson-and-binomial-random-numbers
-    double L = Math.exp(-lambda);
-    double p = 1.0;
-    int k = 0;
-
-    do {
-      k++;
-      p *= Math.random();
-    } while (p > L);
-
-    return k - 1;
-  }
-
   static double getExpDist(double arrivalRate, Random rand) {
     //http://stackoverflow.com/questions/2106503/pseudorandom-number-generator-exponential-distribution
     return Math.log(1-rand.nextDouble())/(-arrivalRate);
@@ -514,33 +474,56 @@ static LinkedList<Double> avgQueueSize;*/
 
   static void populateClients(double avgTimeBetweenArrivals, double arrivalRate,
       int numClients, int serviceLength, int specialServiceLength,
-      int freqOfSpecialClients, boolean shouldUsePoisson, int lengthOfSimulation) {
+      int freqOfSpecialClients, boolean keepSpecialUntilEnd,
+      boolean shouldUsePoisson, int lengthOfSimulation) {
 
     allClients = new ArrayList<>();
     int i = 0;
     int t = Math.round((float) (30.0/arrivalRate));
     int tmpServiceLength = 0;
     int arrivalTime = t;
+    int numSpecialClients = 0;
     SecureRandom sr = new SecureRandom();
 
     if(!shouldUsePoisson) {
+      if(keepSpecialUntilEnd) {
+        numSpecialClients = Math.round((float)numClients/freqOfSpecialClients);
+        numClients -= numSpecialClients;
+      }
+
       while(i < numClients) {
         t += avgTimeBetweenArrivals;
-          arrivalTime = (int) (0.5 + t + (avgTimeBetweenArrivals/2
-          * getExpDist(arrivalRate, sr)
-          * ( sr.nextBoolean() ? 1 : -1 )));
 
-        if(isSpecialClient(freqOfSpecialClients)) {
+        arrivalTime = (int) (0.5 + t + (avgTimeBetweenArrivals/2
+        * getExpDist(arrivalRate, sr)
+        * ( sr.nextBoolean() ? 1 : -1 )));
+
+        if(isSpecialClient(freqOfSpecialClients) && !keepSpecialUntilEnd) {
           tmpServiceLength = (int) (0.5 + specialServiceLength + (specialServiceLength/2
               * getExpDist(specialServiceLength, sr)
               * ( sr.nextBoolean() ? 1 : -1 )));
-          allClients.add(new Client(arrivalTime, specialServiceLength));
+          allClients.add(new Client(arrivalTime, tmpServiceLength));
         } else {
           tmpServiceLength = (int) (0.5 + serviceLength + (serviceLength/2
               * getExpDist(serviceLength, sr)
               * ( sr.nextBoolean() ? 1 : -1 )));
           allClients.add(new Client(arrivalTime, tmpServiceLength));
         }
+        i++;
+      }
+
+      i = 0;
+      while(i < numSpecialClients) {
+        t += avgTimeBetweenArrivals;
+
+        arrivalTime = (int) (0.5 + t + (avgTimeBetweenArrivals/2
+        * getExpDist(arrivalRate, sr)
+        * ( sr.nextBoolean() ? 1 : -1 )));
+
+        tmpServiceLength = (int) (0.5 + specialServiceLength + (specialServiceLength/2
+            * getExpDist(specialServiceLength, sr)
+            * ( sr.nextBoolean() ? 1 : -1 )));
+        allClients.add(new Client(arrivalTime, tmpServiceLength));
         i++;
       }
     } else {//Poisson distributed
@@ -594,17 +577,6 @@ static LinkedList<Double> avgQueueSize;*/
     ArrayList<Server> list = new ArrayList<>();
     for(Server s : allServers) {
       if(s.isBusy()) {
-        list.add(s);
-      }
-    }
-    Server[] arr = list.stream().toArray(Server[]::new); //Java 8 streams
-    return arr;
-  }
-
-  static Server[] getServersOnBreak() {
-    ArrayList<Server> list = new ArrayList<>();
-    for(Server s : allServers) {
-      if(s.isOnBreak()) {
         list.add(s);
       }
     }
@@ -722,7 +694,12 @@ class Server {
   }
 
   public Server() {
-    ;
+    breakTimes = new ArrayList<>();
+    actualBreakTimes = new ArrayList<>();
+    breaksTaken = 0;
+    isBusy = false;
+    timeBusy = 0;
+    timeWaiting = 0;
   }
 
   public void giveClient(Client c, int time) {
@@ -766,7 +743,6 @@ class Server {
   }
 
   public void checkBreaktimeStatus(int time) {
-
     if(breaksTaken >= breakTimes.size())//If no more breaks left
       return;
 
