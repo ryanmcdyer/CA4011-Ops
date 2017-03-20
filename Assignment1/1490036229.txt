@@ -1,0 +1,49 @@
+PARAMS: 
+Length of simulation (mins): 100
+Arrival rate (lambda): 6.0
+Service rate (mu): 2.0
+Number of servers: 1
+Traffic Intensity (assuming no special clients): 3.0
+Vars are Exponentially Distributed.
+There are no special clients.
+Breaks per server 1
+Length of breaks 30
+Number of Simulations 1
+Server 0 was scheduled to break at 20 but broke at 21
+========================================
+
+Average waiting times (Client): 
+61.888888888888886 
+Longest average waiting time client: 61.888888888888886
+
+Average time spent in system: 
+91.66666666666667 
+Longest average time spent in system: 91.66666666666667
+
+Maximum waiting times (Client): 
+136 
+Overall largest waiting time (Client): 136
+
+Maximum time spent in system: 
+166 
+Overall largest time spent in system (Client): 166
+
+Time spent serving Clients (mins): 
+215 
+Most time spent serving Clients: 215
+
+Time spent idle (Server, mins): 
+15 
+Longest time spent idle (Server): 15
+
+Average system size (num active customers): 
+4.053639846743295 
+Largest average system size: 4.053639846743295
+
+Average queue size: 
+2.1685823754789273 
+Largest average queue size: 2.1685823754789273
+
+Finishing times (Last Client arrival is at or before 100 mins): 
+261 
+Latest finishing time: 261
