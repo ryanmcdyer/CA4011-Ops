@@ -1,0 +1,24 @@
+PARAMS: 
+length of sim in minutes 1000
+arrivalRate 6.0
+areArrivalsExpDisted false
+serviceRate 4.0
+numServers 2
+freqOfSpecialClients 0
+numSimulations 1
+Average waiting times (Client): 
+23.714 
+Average time spent in system: 
+38.714 
+Maximum waiting times (Client): 
+968 
+Maximum time spent in system: 
+983 
+Time spent serving Clients (mins): 
+0 0 
+Time spent idle (Server, mins): 
+1000 1000 
+Average system size (num active customers): 
+23.714 
+Average queue size: 
+23.714 
