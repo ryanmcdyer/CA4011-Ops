@@ -1,0 +1,100 @@
+6 total.
+
+2 of: 1.2, 1.4, 1.5
+2 of: 1.2, 2.3, 2.5, 2.6
+2 of: 3.2, 3.3, 3.4
+
+1.2
+
+Fig 1.6
+
+The steel model of this chapter can be further modified to reflect various changes in produc-
+tion requirements. For each part below, explain the modifications to Figures 1-6a and 1-6b that
+would be required to achieve the desired changes. (Make each change separately, rather than accu-
+mulating the changes from one part to the next.)
+
+(a) How would you change the constraints so that total hours used by all products must equal the
+total hours available for each stage? Solve the linear program with this change, and verify that you
+get the same results. Explain why, in this case, there is no difference in the solution.
+
+(b) How would you add to the model to restrict the total weight of all products to be less than a
+new parameter, max_weight? Solve the linear program for a weight limit of 6500 tons, and
+explain how this extra restriction changes the results.
+
+(c) The incentive system for mill managers may tend to encourage them to produce as many tons as
+possible. How would you change the objective function to maximize total tons? For the data of
+our example, does this make a difference to the optimal solution?
+
+(d) Suppose that instead of the lower bounds represented by commit[p] in our model, we want to
+require that each product represent a certain share of the total tons produced. In the algebraic nota-
+tion of Figure 1-1, this new constraint might be represented as
+
+X j ≥ s j
+Σ X k , for each j ∈P
+k ∈P
+
+where s j is the minimum share associated with project j. How would you change the AMPL model
+to use this constraint in place of the lower bounds commit[p]? If the minimum shares are 0.4 for
+bands and plate, and 0.1 for coils, what is the solution?
+Verify that if you change the minimum shares to 0.5 for bands and plate, and 0.1 for coils, the lin-
+ear program gives an optimal solution that produces nothing, at zero profit. Explain why this
+makes sense.
+(e) Suppose there is an additional finishing stage for plates only, with a capacity of 20 hours and a
+rate of 150 tons per hour. Explain how you could modify the data, without changing the model, to
+incorporate this new stage.
+
+Fig 1-6a
+set PROD;
+set STAGE;
+# products
+# stages
+param rate {PROD,STAGE} > 0; # tons per hour in each stage
+param avail {STAGE} >= 0;
+# hours available/week in each stage
+param profit {PROD};
+# profit per ton
+param commit {PROD} >= 0;
+param market {PROD} >= 0;
+# lower limit on tons sold in week
+# upper limit on tons sold in week
+var Make {p in PROD} >= commit[p], <= market[p]; # tons produced
+maximize Total_Profit: sum {p in PROD} profit[p] * Make[p];
+# Objective: total profits from all products
+subject to Time {s in STAGE}:
+sum {p in PROD} (1/rate[p,s]) * Make[p] <= avail[s];
+# In each stage: total of hours used by all
+# products may not exceed hours available
+
+Fig 1-6b
+set PROD := bands coils plate;
+set STAGE := reheat roll;
+param rate:
+bands
+coils
+plate
+param:
+bands
+coils
+plate
+reheat
+200
+200
+200
+profit
+25
+30
+29
+param avail :=
+roll :=
+200
+140
+160 ;
+commit
+1000
+500
+750 market :=
+6000
+4000
+3500 ;
+reheat 35 roll
+40 ;
