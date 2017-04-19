@@ -1,0 +1,30 @@
+set DAYS :=
+Mo Tu We Th Fr Sa Su ;
+
+set ROSTERS :=
+MoTuWeThSa MoTuWeThSu
+MoTuWeFrSa MoTuWeFrSu
+MoTuThFrSa MoTuThFrSu
+MoWeThFrSa MoWeThFrSu
+TuWeThFrSa TuWeThFrSu ;
+
+param workdays (tr): Mo Tu We Th Fr Sa Su :=
+              MoTuWeThSa  1  1  1  1  0  1  0
+              MoTuWeThSu  1  1  1  1  0  0  1
+              MoTuWeFrSa  1  1  1  0  1  1  0
+              MoTuWeFrSu  1  1  1  0  1  0  1
+              MoTuThFrSa  1  1  0  1  1  1  0
+              MoTuThFrSu  1  1  0  1  1  0  1
+              MoWeThFrSa  1  0  1  1  1  1  0
+              MoWeThFrSu  1  0  1  1  1  0  1
+              TuWeThFrSa  0  1  1  1  1  1  0
+              TuWeThFrSu  0  1  1  1  1  0  1 ;
+
+param staff_needed :=
+Mo 45
+Tu 45
+We 40
+Th 50
+Fr 65
+Sa 35
+Su 35 ;

@@ -1,0 +1,10 @@
+a)
+  sets
+  - PROD
+    - types of car eg: t, l, c
+  params
+  - time per car
+  - profit per car
+  - time per week (all time should be used)
+  - minimum cars needed
+  Goal: Max profit

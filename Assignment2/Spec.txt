@@ -1,12 +1,16 @@
 6 total.
 
 2 of: 1.2, 1.4, 1.5
-2 of: 1.2, 2.3, 2.5, 2.6
+2 of: 2.2, 2.3, 2.5, 2.6
 2 of: 3.2, 3.3, 3.4
 
-1.2
+I have chosen:
+1.2 2.5 - UCD
 
-Fig 1.6
+1.4 - Cars
+
+
+
 
 The steel model of this chapter can be further modified to reflect various changes in produc-
 tion requirements. For each part below, explain the modifications to Figures 1-6a and 1-6b that
@@ -17,84 +21,75 @@ mulating the changes from one part to the next.)
 total hours available for each stage? Solve the linear program with this change, and verify that you
 get the same results. Explain why, in this case, there is no difference in the solution.
 
+> In steel4a.mod you change the "<=" to "=" to force equality.
+    sum {p in PROD} (1/rate[p,s]) * Make[p] <= avail[s];
+
+> However, because the optimal solution already uses all the hours available at each stage there is no change.
+
 (b) How would you add to the model to restrict the total weight of all products to be less than a
 new parameter, max_weight? Solve the linear program for a weight limit of 6500 tons, and
 explain how this extra restriction changes the results.
+
+> In steel4b.mod you append:
+    param max_weight;
+    subject to Total_Weight:
+        sum {p in PROD} Make[p] <= max_weight;
+
+> In steel4b.dat you append:
+    param max_weight := 6500;
 
 (c) The incentive system for mill managers may tend to encourage them to produce as many tons as
 possible. How would you change the objective function to maximize total tons? For the data of
 our example, does this make a difference to the optimal solution?
 
+> In steel4c.mod change the "maximize" line to
+    maximize Total_Make: sum {p in PROD} Make[p];
+
 (d) Suppose that instead of the lower bounds represented by commit[p] in our model, we want to
 require that each product represent a certain share of the total tons produced. In the algebraic nota-
 tion of Figure 1-1, this new constraint might be represented as
 
-X j ≥ s j
-Σ X k , for each j ∈P
-k ∈P
+    X_j ≥ s_j Σ (X_k), for each j∈P
+               k∈P
 
 where s j is the minimum share associated with project j. How would you change the AMPL model
 to use this constraint in place of the lower bounds commit[p]? If the minimum shares are 0.4 for
 bands and plate, and 0.1 for coils, what is the solution?
+
+> In steel4d-valid.dat and steel4d-invalid.dat, replace the "commit" column with a "share" column.
+    Then in steel4d.mod, add
+
+    subject to Min_share {p in PROD}:
+      Make[p] >= share[p] * sum {p0 in PROD} Make[p0];
+
+
 Verify that if you change the minimum shares to 0.5 for bands and plate, and 0.1 for coils, the lin-
 ear program gives an optimal solution that produces nothing, at zero profit. Explain why this
 makes sense.
+
+> It tells us to make a very high negative number of units.
+    This is because (0.5 + 0.5 + 0.1) > 1, and as a result there are no feasible solutions.
+
 (e) Suppose there is an additional finishing stage for plates only, with a capacity of 20 hours and a
 rate of 150 tons per hour. Explain how you could modify the data, without changing the model, to
 incorporate this new stage.
 
-Fig 1-6a
-set PROD;
-set STAGE;
-# products
-# stages
-param rate {PROD,STAGE} > 0; # tons per hour in each stage
-param avail {STAGE} >= 0;
-# hours available/week in each stage
-param profit {PROD};
-# profit per ton
-param commit {PROD} >= 0;
-param market {PROD} >= 0;
-# lower limit on tons sold in week
-# upper limit on tons sold in week
-var Make {p in PROD} >= commit[p], <= market[p]; # tons produced
-maximize Total_Profit: sum {p in PROD} profit[p] * Make[p];
-# Objective: total profits from all products
-subject to Time {s in STAGE}:
-sum {p in PROD} (1/rate[p,s]) * Make[p] <= avail[s];
-# In each stage: total of hours used by all
-# products may not exceed hours available
+> I added a "finishing" column to the rate matrix that has a "150" value for plate,
+      and "Infinity" values (Infinity being a reserved keyword in AMPL) for coils and bands.
+    This makes sure it only applies to plate.
+    I then added "finishing 20" to the avail matrix.
 
-Fig 1-6b
-set PROD := bands coils plate;
-set STAGE := reheat roll;
-param rate:
-bands
-coils
-plate
-param:
-bands
-coils
-plate
-reheat
-200
-200
-200
-profit
-25
-30
-29
-param avail :=
-roll :=
-200
-140
-160 ;
-commit
-1000
-500
-750 market :=
-6000
-4000
-3500 ;
-reheat 35 roll
-40 ;
+-------------------------
+
+2-5
+A chain of fast-food restaurants operates 7 days a week, and requires the following minimum
+number of kitchen employees from Monday through Sunday:
+M   Tu  W   Th  F   Sa  Su
+45  45  40  50  65  35  35.
+Each employee is scheduled to work one weekend day (Saturday or Sunday) and four other days in a
+week. The management wants to know the minimum total number of employees needed to satisfy
+the requirements on every day.
+
+(a) Set up and solve this problem as a linear program.
+(b) In light of the discussion in Section 2.4, explain how this problem can be viewed as a special
+case of the blending model in Figure 2-4.
