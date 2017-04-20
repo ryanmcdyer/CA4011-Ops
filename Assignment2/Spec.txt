@@ -5,9 +5,10 @@
 2 of: 3.2, 3.3, 3.4
 
 I have chosen:
-1.2 2.5 - UCD
+1.2 2.5 - Steel, Employees (UCDenver)
 
 1.4 - Cars
+2.2 - Exercise
 
 
 

@@ -1,0 +1,10 @@
+set PROD := t l c;
+
+param: time profit orders efficiency:=
+    t   1   200      10     50
+    c   2   500      20     30
+    l   3   700      15     20 ;
+
+param avail := 130;
+
+param min_efficiency := 35;
