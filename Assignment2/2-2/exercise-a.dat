@@ -7,3 +7,5 @@ swimming  300   3
 machine   150   3.5
 indoor    300   3
 pushback  500   0.5 ;
+
+param calories_to_burn := 2000 ;
