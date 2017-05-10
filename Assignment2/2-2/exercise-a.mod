@@ -1,5 +1,6 @@
 set EXERCISES;
 
+
 param tolerance {EXERCISES};
 param calories {EXERCISES};
 
@@ -9,4 +10,5 @@ minimize Total_Time_Used: sum {e in EXERCISES} Do[e];
 subject to Tolerance {e in EXERCISES}:
     Do[e] <= tolerance[e];
 subject to Calories_Burned:
-    sum {e in EXERCISES} Do[e] * calories[e] >= 2000;
+    sum {E in EXERCISES} Do[e] * calories[e] >= min_calories ;
+
