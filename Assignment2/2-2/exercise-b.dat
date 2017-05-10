@@ -1,0 +1,13 @@
+set EXERCISES := walking jogging swimming machine indoor pushback ;
+
+param: calories minimum tolerance special :=
+walking   100   1       5         1
+jogging   200   1       2         1
+swimming  300   1       3         0
+machine   150   1       3.5       1
+indoor    300   0       3         0
+pushback  500   0       0.5       0;
+
+param special_exercise_limit := 4;
+
+#    but no more than four hours total of walking, jogging, and exercise-machine

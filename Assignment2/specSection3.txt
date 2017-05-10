@@ -1,0 +1,88 @@
+3-3. This exercise deals with generalizations of the transportation model and data of Figure 3-1.
+
+(a) Add two parameters, supply_pct and demand_pct, to represent the maximum fraction of
+a mill’s supply that may be sent to any one factory, and the maximum fraction of a factory’s
+demand that may be satisfied by any one mill. Incorporate these parameters into the model of Fig-
+ure 3-1a.
+Solve for the case in which no more than 50% of a mill’s supply may be sent to any one factory,
+and no more than 85% of a factory’s demand may be satisfied by any one mill. How does this
+change the minimum cost and the optimal amounts shipped?
+
+(b) Suppose that the rolling mills do not produce their own slabs, but instead obtain slabs from two
+other plants, where the following numbers of tons are to be made available:
+    MIDTWN 2700
+    HAMLTN 4200
+
+The cost per ton of shipping a slab from a plant to a mill is as follows:
+
+       GARY CLEV PITT
+MIDTWN 12   8    17
+HAMLTN 10   5    13
+
+All other data values are the same as before, but with supply_pct reinterpreted as the maximum
+fraction of a plant’s supply that may be sent to any one mill.
+Formulate this situation as an AMPL model. You will need two indexed collections of variables,
+one for the shipments from plants to mills, and one for the shipments from mills to factories. Ship-
+ments from each mill will have to equal supply, and shipments to each factory will have to equal
+demand as before; also, shipments out of each mill will have to equal shipments in.
+Solve the resulting linear program. What are the shipment amounts in the minimum-cost solution?
+
+> Don't have the Mill in = Mill out part working
+
+(c) In addition to the differences in shipping costs, there may be different costs of production at the
+plants and mills. Explain how production costs could be incorporated into the model.
+
+> No idea
+
+(d) When slabs are rolled, some fraction of the steel is lost as scrap. Assuming that this fraction
+may be different at each mill, revise the model to take scrap loss into account.
+
+> Multiply supply by 0.9 (ie: 10% loss) after you have asserted supply = avail_Slab
+
+(e) In reality, scrap is not really lost, but is sold for recycling. Make a further change to the model
+to account for the value of the scrap produced at each mill.
+
+>
+
+
+----------
+
+3-4. This exercise considers variations on the assignment problem introduced in Section 3.3.
+
+(a) Try reordering the list of members of DEST in the data (Figure 3-2), and solving again. Find a
+reordering that causes your solver to report a different optimal assignment.
+
+> No idea
+
+(b) An assignment that gives even one person a very low-ranked office may be unacceptable, even
+if the total of the rankings is optimized. In particular, our solution gives one individual her sixth
+choice; to rule this out, change all preferences of six or larger in the cost data to 99, so that they
+will become very unattractive. (You’ll learn more convenient features for doing the same thing in
+later chapters, but this crude approach will work for now.) Solve the assignment problem again,
+and verify that the result is an equally good assignment in which no one gets worse than fifth
+choice.
+
+> Objective again = 28, highest choice = 5
+
+Now apply the same approach to try to give everyone no worse than fourth choice. What do you
+find?
+> Daskin    C140   99
+> Daskin is stuck with an office they don't want
+
+
+(c) Suppose now that offices C118, C250 and C251 become unavailable, and you have to put two
+people each into C138, C140 and C246. Add 20 to each ranking for these three offices, to reflect
+the fact that anyone would prefer a private office to a shared one. What other modifications to the
+model and data would be necessary to handle this situation? What optimal assignment do you get?
+
+> I changed the demand param so that C138 C140 and C246 have a demand of 2 while the other 5 rooms have a demand of 1.
+  I then changed the cost matrix so that D237 D239 D241 M233 and M239 have costs of 1 to 5.
+  I then changed the costs of C138 C140 and C246 to "26" "27" and "28".
+  This is such that the rooms would have been in order of 1-8 (with the C rooms being 6-8), and then the C rooms had 20 added.
+
+(d) Some people may have seniority that entitles them to greater consideration in their choice of
+office. Explain how you could enhance the model to use seniority level data for each person.
+
+> There could perhaps be a 1-10 scale for seniority, 10 being the longest-serving and 1 the shortest-serving staff members.
+The "cost" then would not just be their choice, but their choice * their level of seniority.
+This means if a new staff member and an old staff member both want the same room, the old member gets it.

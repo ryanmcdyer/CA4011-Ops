@@ -1,0 +1,8 @@
+set PROD := t l c;
+
+param: time profit orders :=
+    t   1   200      10
+    c   2   500      20
+    l   3   700      15 ;
+
+param avail := 130;

@@ -1,0 +1,34 @@
+param: PLANTS: avail_slab := # defines set "PLANTS" and param "avail_slab"
+        MIDTWN 2700
+        HAMLTN 4200 ;
+
+
+param cost_slab:
+            GARY CLEV PITT :=
+    MIDTWN  12   8    17
+    HAMLTN  10   5    13 ;
+
+param supply_pct := 0.5 ;
+
+param demand_pct := 0.85 ;
+
+
+param: MILLS: supply := # defines set "MILL" and param "supply"
+        GARY  1400
+        CLEV  2600
+        PITT  2900 ;
+
+param cost:
+          FRA   DET   LAN   WIN   STL   FRE   LAF  :=
+    GARY  39    14    11    14    16    82    8
+    CLEV  27    9     12    9     26    95    17
+    PITT  24    14    17    13    28    99    20  ;
+
+param: FACTORIES: demand := # defines "FACTORIES" and "demand"
+        FRA  900
+        DET  1200
+        LAN  600
+        WIN  400
+        STL  1700
+        FRE  1100
+        LAF  1000 ;

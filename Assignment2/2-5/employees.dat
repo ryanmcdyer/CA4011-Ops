@@ -1,12 +1,21 @@
 set DAYS :=
 Mo Tu We Th Fr Sa Su ;
 
-set ROSTERS :=
+set ROSTERS := #All possible rosters that fit 4 weekdays + 1 weekend-day
 MoTuWeThSa MoTuWeThSu
 MoTuWeFrSa MoTuWeFrSu
 MoTuThFrSa MoTuThFrSu
 MoWeThFrSa MoWeThFrSu
 TuWeThFrSa TuWeThFrSu ;
+
+param employees_needed :=
+    Mo 45
+    Tu 45
+    We 40
+    Th 50
+    Fr 65
+    Sa 35
+    Su 35 ;
 
 param workdays (tr): Mo Tu We Th Fr Sa Su :=
               MoTuWeThSa  1  1  1  1  0  1  0
@@ -19,12 +28,3 @@ param workdays (tr): Mo Tu We Th Fr Sa Su :=
               MoWeThFrSu  1  0  1  1  1  0  1
               TuWeThFrSa  0  1  1  1  1  1  0
               TuWeThFrSu  0  1  1  1  1  0  1 ;
-
-param staff_needed :=
-Mo 45
-Tu 45
-We 40
-Th 50
-Fr 65
-Sa 35
-Su 35 ;

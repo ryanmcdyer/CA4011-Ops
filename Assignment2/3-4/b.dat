@@ -1,0 +1,23 @@
+set ORIG := Coullard Daskin Hazen Hopp Iravani Linetsky
+            Mehrotra Nelson Smilowitz Tamhane White ;
+
+set DEST := C118 C138 C140 C246 C250 C251 D237 D239 D241 M233 M239;
+
+param supply default 1 ;
+
+param demand default 1 ;
+
+param cost:
+          C118 C138 C140 C246 C250 C251 D237 D239 D241 M233 M239 :=
+          Coullard 99 99 99 99 99 99 4 99 3 2 1
+          Daskin 99 99 99 99 99 99 1 99 4 2 3
+          Hazen 99 99 99 1 99 99 2 99 99 3 4
+          Hopp 99 99 99 99 99 99 1 99 4 2 3
+          Iravani 3 2 99 99 99 99 1 99 4 99 99
+          Linetsky 99 99 99 99 3 4 99 99 99 1 2
+          Mehrotra 99 99 99 99 99 99 1 2 99 4 3
+          Nelson 99 99 4 99 99 99 1 99 99 2 3
+          Smilowitz 99 99 99 99 99 99 99 3 4 1 2
+          Tamhane 99 99 99 99 4 3 99 99 99 2 1
+          White 99 99 99 4 99 99 3 99 99 2 1
+ ;
